@@ -26,7 +26,6 @@ cur.execute(
     """
 )
 
-# Define our Enums and Task Model with 'status'
 class TaskStatus(str, Enum):
     planned = "planned"
     purchased = "purchased"
@@ -39,11 +38,11 @@ class Task(BaseModel):
     created_by: str
     category: str
 
-# Function to toggle task status
+# Toggle task status
 def toggle_status(task_id, new_status):
     cur.execute("UPDATE tasks SET status = ? WHERE id = ?", (new_status, task_id))
 
-# Function to delete a task
+# Delete a task
 def delete_task(task_id):
     cur.execute("DELETE FROM tasks WHERE id = ?", (task_id,))
 
@@ -55,11 +54,11 @@ def main():
 
     # Filter dropdown
     categories = cur.execute("SELECT DISTINCT category FROM tasks").fetchall()
-    categories = [c[0] for c in categories if c[0] is not None]  # Extract category items and remove None values
-    categories.insert(0, "All")  # Add "All" option to categories
+    categories = [c[0] for c in categories if c[0] is not None]
+    categories.insert(0, "All")
     selected_category = st.selectbox("Filter by category", categories)
 
-    # Create a Form using the streamlit-pydantic package with 'status'
+    # Create a Form
     data = sp.pydantic_form(key="task_form", model=Task)
     if data:
         cur.execute(
@@ -70,7 +69,7 @@ def main():
         )
         st.success("Task added successfully!")
 
-    # Display tasks based on search and filter
+    # Display tasks
     query = "SELECT * FROM tasks WHERE item LIKE ?"
     parameters = [f"%{search_query}%"]
 
@@ -81,22 +80,22 @@ def main():
     tasks = cur.execute(query, parameters).fetchall()
 
     # Create a header row
-    header_cols = st.columns([1, 3, 3, 2])  # Adjust the width ratios as needed
+    header_cols = st.columns([1, 3, 3, 2])
     header_cols[0].write("Status")
     header_cols[1].write("Item")
     header_cols[2].write("Description")
-    header_cols[3].write("Actions")  # Consolidated actions column
+    header_cols[3].write("Actions")
 
     for task in tasks:
-        task_cols = st.columns([1, 3, 3, 2])  # Keep the same ratios as the header for consistency
+        task_cols = st.columns([1, 3, 3, 2])
 
         # Checkbox to toggle task status
-        current_status = task[3]  # Fetch current status
+        current_status = task[3]
         is_purchased = current_status == 'purchased'
         if task_cols[0].checkbox("", value=is_purchased, key=f"status_{task[0]}"):
-            if not is_purchased:  # If the task was not already marked as purchased, update its status to 'purchased'
+            if not is_purchased:
                 toggle_status(task[0], 'purchased')
-        elif is_purchased:  # If the checkbox is unchecked and the task was previously marked as purchased, update to 'planned'
+        elif is_purchased:
             toggle_status(task[0], 'planned')
 
         # Display task item and description
@@ -110,7 +109,6 @@ def main():
 
 def edit_view(task_id):
     st.write(f"Editing task {task_id}")
-    # Fetch task details from the database using task_id
-
+    
 if __name__ == "__main__":
     main()
