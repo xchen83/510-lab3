@@ -110,4 +110,5 @@ def main():
 def edit_view(task_id):
     st.write(f"Editing task {task_id}")
     
-main()
+if __name__ == "__main__":
+    main()
