@@ -28,4 +28,8 @@ In this lab, I have learned how to use the streamlit to create a form which incl
 
 
 ## Questions / Improvements
+Question:
+Can I use the same resource group for multiple apps?
+
+Future Improvements:
 Future improvements could be made to incorporate images to the app.
